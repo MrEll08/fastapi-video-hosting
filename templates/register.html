@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .form-container h2 {
+            text-align: center;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            display: none;
+            margin-top: 10px;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .login-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Регистрация</h2>
+    <form id="register-form">
+        <input type="text" id="login" class="input-field" placeholder="Логин" required>
+        <input type="text" id="nickname" class="input-field" placeholder="Никнейм" required>
+        <input type="password" id="password" class="input-field" placeholder="Пароль" required>
+        <button type="submit" class="submit-btn">Зарегистрироваться</button>
+        <p class="error" id="error-message">Ошибка при регистрации.</p>
+    </form>
+    <div class="login-link">
+        <p>Уже зарегистрированы? <a href="/login">Войти</a></p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('register-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const login = document.getElementById('login').value;
+        const nickname = document.getElementById('nickname').value;
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('error-message');
+        errorMsg.style.display = 'none';
+
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ login, nickname, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                alert('Регистрация прошла успешно!');
+                // Можно сохранить логин для автозаполнения на странице входа, если хочешь
+                // localStorage.setItem('lastLogin', login);
+
+                window.location.href = '/login';
+            } else {
+                const message = data.detail || 'Ошибка при регистрации.';
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+            }
+        } catch (error) {
+            errorMsg.textContent = 'Ошибка сети или сервера.';
+            errorMsg.style.display = 'block';
+            console.error('Ошибка при регистрации:', error);
+        }
+    });
+</script>
+
+</body>
+</html>

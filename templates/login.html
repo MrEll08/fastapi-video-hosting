@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма входа</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .form-container h2 {
+            text-align: center;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Войти</h2>
+    <form id="login-form">
+        <input type="text" id="login" class="input-field" placeholder="Логин" required>
+        <input type="password" id="password" class="input-field" placeholder="Пароль" required>
+        <button type="submit" class="submit-btn">Войти</button>
+        <p class="error" id="error-message">Ошибка при входе. Пожалуйста, попробуйте снова.</p>
+    </form>
+</div>
+
+<script>
+    document.getElementById('login-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const login = document.getElementById('login').value;
+    const password = document.getElementById('password').value;
+    document.getElementById('error-message').style.display = 'none';
+
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ login, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Успешный вход — редирект
+            localStorage.setItem('login', data.login);
+            window.location.href = '/welcome';
+        } else {
+            // Ошибка авторизации (не 2xx или success = false)
+            document.getElementById('error-message').textContent = data.message || 'Ошибка при входе.';
+            document.getElementById('error-message').style.display = 'block';
+        }
+    } catch (error) {
+        // Ошибка запроса или сервера
+        document.getElementById('error-message').textContent = 'Ошибка при входе. Пожалуйста, попробуйте снова.';
+        document.getElementById('error-message').style.display = 'block';
+        console.error('Ошибка при входе:', error);
+    }
+});
+</script>
+
+</body>
+</html>
