@@ -46,6 +46,19 @@
             font-size: 14px;
             display: none;
         }
+        .register-link {
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .register-link a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -58,43 +71,43 @@
         <button type="submit" class="submit-btn">Войти</button>
         <p class="error" id="error-message">Ошибка при входе. Пожалуйста, попробуйте снова.</p>
     </form>
+    <div class="register-link">
+        Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+    </div>
 </div>
 
 <script>
     document.getElementById('login-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
+        event.preventDefault();
 
-    const login = document.getElementById('login').value;
-    const password = document.getElementById('password').value;
-    document.getElementById('error-message').style.display = 'none';
+        const login = document.getElementById('login').value;
+        const password = document.getElementById('password').value;
+        document.getElementById('error-message').style.display = 'none';
 
-    try {
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ login, password })
-        });
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ login, password })
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok && data.success) {
-            // Успешный вход — редирект
-            localStorage.setItem('login', data.login);
-            window.location.href = '/welcome';
-        } else {
-            // Ошибка авторизации (не 2xx или success = false)
-            document.getElementById('error-message').textContent = data.message || 'Ошибка при входе.';
+            if (response.ok && data.success) {
+                localStorage.setItem('login', data.login);
+                window.location.href = '/welcome';
+            } else {
+                document.getElementById('error-message').textContent = data.message || 'Ошибка при входе.';
+                document.getElementById('error-message').style.display = 'block';
+            }
+        } catch (error) {
+            document.getElementById('error-message').textContent = 'Ошибка при входе. Пожалуйста, попробуйте снова.';
             document.getElementById('error-message').style.display = 'block';
+            console.error('Ошибка при входе:', error);
         }
-    } catch (error) {
-        // Ошибка запроса или сервера
-        document.getElementById('error-message').textContent = 'Ошибка при входе. Пожалуйста, попробуйте снова.';
-        document.getElementById('error-message').style.display = 'block';
-        console.error('Ошибка при входе:', error);
-    }
-});
+    });
 </script>
 
 </body>

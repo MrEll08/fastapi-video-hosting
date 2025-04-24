@@ -3,3 +3,4 @@
 !.dockerignore
 __*
 database/database.db
+uploads/*

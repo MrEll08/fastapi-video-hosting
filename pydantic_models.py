@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
+from fastapi import UploadFile
 
 
 class UserCreate(BaseModel):
@@ -18,3 +19,9 @@ class UserResponse(BaseModel):
     id: int
     login: str
     nickname: str
+
+
+class VideoCreate(BaseModel):
+    title: str = Field(..., description="Video title")
+    description: str = Field(description="Video description")
+    # video_file: UploadFile = Field(..., description="Video file")
