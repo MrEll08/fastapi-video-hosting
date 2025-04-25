@@ -4,11 +4,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import logging
 
-import authorization, video_endpoints
+from routers import video_endpoints, authorization, subscriptions
 
 app = FastAPI()
 app.include_router(authorization.router)
 app.include_router(video_endpoints.router)
+app.include_router(subscriptions.router)
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 

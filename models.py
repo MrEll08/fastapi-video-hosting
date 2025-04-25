@@ -17,6 +17,33 @@ class User(Base):
     videos: Mapped[list["Video"]] = relationship(back_populates="author")
     video_comments: Mapped[list["VideoComment"]] = relationship(back_populates="user")
 
+    followers: Mapped[list["Subscription"]] = relationship(
+        back_populates="followed",
+        foreign_keys="Subscription.followed_id",
+        cascade="all, delete-orphan",
+    )
+    subscriptions: Mapped[list["Subscription"]] = relationship(
+        back_populates="follower",
+        foreign_keys="Subscription.follower_id",
+        cascade="all, delete-orphan",
+    )
+
+
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+
+    follower_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    followed_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+    follower: Mapped["User"] = relationship(
+        back_populates="subscriptions",
+        foreign_keys=follower_id,
+    )
+    followed: Mapped["User"] = relationship(
+        back_populates="followers",
+        foreign_keys=followed_id,
+    )
+
 
 class Post(Base):
     __tablename__ = "posts"

@@ -11,16 +11,19 @@
             margin: 0;
             padding: 0;
         }
+
         header {
             background-color: #20232a;
             color: white;
             padding: 20px;
             text-align: center;
         }
+
         main {
             padding: 40px;
             text-align: center;
         }
+
         .video-container {
             background-color: white;
             padding: 20px;
@@ -28,17 +31,47 @@
             width: 80%;
             max-width: 800px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         video {
             width: 100%;
             border-radius: 10px;
         }
+
         .author-info {
             margin-top: 10px;
             font-size: 1.1em;
             color: #555;
         }
+
+        .subscribe-btn {
+            background-color: #20232a;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .subscribe-btn.subscribed {
+            background-color: darkgray;
+        }
+
+        .subscribe-btn.not-subscribed {
+            background-color: red;
+        }
+
+        .subscribe-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            color: white;
+        }
+
+        .subscribe-btn:hover {
+            opacity: 0.8;
+        }
+
         .author-info button {
             background-color: #20232a;
             color: white;
@@ -47,16 +80,19 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .author-info button:hover {
             background-color: #444851;
         }
+
         .comments-section {
             margin-top: 40px;
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         .comments-section input[type="text"],
         .comments-section textarea {
             width: 100%;
@@ -66,6 +102,7 @@
             border: 1px solid #ddd;
             font-size: 1em;
         }
+
         .comments-section button {
             background-color: #20232a;
             color: white;
@@ -74,14 +111,17 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .comments-section button:hover {
             background-color: #444851;
         }
+
         .like-dislike-container {
             display: flex;
             justify-content: center;
             margin-top: 20px;
         }
+
         .like-dislike-button {
             margin: 0 10px;
             background-color: #f4f4f4;
@@ -90,14 +130,17 @@
             cursor: pointer;
             border: 1px solid #ddd;
         }
+
         .like-dislike-button:hover {
             background-color: #ddd;
         }
+
         .like-dislike-count {
             margin-top: 5px;
             font-size: 1.2em;
             color: #444;
         }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -116,13 +159,14 @@
     <div class="video-container">
         <h2>Видео: {{ title }}</h2>
         <video controls id="video-player">
-            <source src="{{video_path}}" type="video/mp4">
+            <source src="{{ video_path }}" type="video/mp4">
             Ваш браузер не поддерживает видео.
         </video>
 
         <div class="author-info">
             <p><strong>Автор:</strong> {{ author_name }}</p>
-            <button id="subscribe-btn">Подписаться</button>
+            <p><strong>Описание:</strong> {{ description }}</p>
+            <button id="subscribe-btn" data-author="{{ author_name }}" class="subscribe-btn">Подписаться</button>
         </div>
 
         <div class="like-dislike-container">
@@ -141,7 +185,6 @@
     <div class="comments-section">
         <h3>Комментарии</h3>
         <form id="comment-form">
-            <input type="text" id="name" placeholder="Ваше имя" required>
             <textarea id="comment" placeholder="Оставьте комментарий" required></textarea>
             <button type="submit">Отправить</button>
         </form>
@@ -157,9 +200,64 @@
 </footer>
 
 <script>
+    const subscribeBtn = document.getElementById("subscribe-btn");
+    let user_id = "{{ user_id }}";
+    let author_id = "{{ author_id }}";
+    let subscribed = false;
+
+    async function check_subscription_status() {
+        try {
+            const response = await fetch(`/subscriptions/check?follower_id=${user_id}&followed_id=${author_id}`);
+            if (response.ok) {
+                let data = await response.json();
+                subscribed = data.status;
+                update_button(subscribed);
+            } else {
+                console.error("An error occurred while checking your subscription status:",
+                    response.error | "unidentified");
+                subscribeBtn.disabled = true;
+            }
+        } catch {
+            console.error("Check subscription status failed");
+            subscribeBtn.disabled = true;
+        }
+    }
+
+    function update_button(subscribed) {
+        if (subscribed) {
+            subscribeBtn.textContent = 'Отписаться';
+            subscribeBtn.classList.remove('not-subscribed');
+            subscribeBtn.classList.add('subscribed');
+        } else {
+            subscribeBtn.textContent = 'Подписаться';
+            subscribeBtn.classList.remove('subscribed');
+            subscribeBtn.classList.add('not-subscribed');
+        }
+    }
+
+    subscribeBtn.addEventListener('click', async () => {
+        try {
+            let url = "/subscriptions/" + (subscribed ? "unsubscribe" : "subscribe") + `?follower_id=${user_id}&followed_id=${author_id}`;
+            const response = await fetch(url, {
+                method: "POST"
+            });
+            if (response.ok) {
+                subscribed = !subscribed;
+                update_button(subscribed);
+            } else {
+                console.error("An error occurred while changing your subscription status:",
+                    response.error | "unidentified");
+            }
+        } catch {
+            console.error("Changing subscription status failed");
+        }
+    });
+
+    check_subscription_status();
+
     // Логика лайков/дизлайков
-    let likeCount = {{ likes }};
-    let dislikeCount = {{ dislikes }};
+    let likeCount = "{{likes}}";
+    let dislikeCount = "{{dislikes}}";
 
     document.getElementById('like-btn').addEventListener('click', () => {
         likeCount++;
@@ -169,11 +267,6 @@
     document.getElementById('dislike-btn').addEventListener('click', () => {
         dislikeCount++;
         document.getElementById('dislike-count').textContent = dislikeCount;
-    });
-
-    // Логика подписки
-    document.getElementById('subscribe-btn').addEventListener('click', () => {
-        alert('Вы подписались на автора!');
     });
 
     // Логика отправки комментария

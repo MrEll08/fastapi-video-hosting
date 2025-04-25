@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict, Field
-from fastapi import UploadFile
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+from typing import Optional
 
 
 class UserCreate(BaseModel):
@@ -24,4 +24,14 @@ class UserResponse(BaseModel):
 class VideoCreate(BaseModel):
     title: str = Field(..., description="Video title")
     description: str = Field(description="Video description")
-    # video_file: UploadFile = Field(..., description="Video file")
+
+
+class SubscriptionCreate(BaseModel):
+    follower_id: int = Field(..., description="Follower ID")
+    followed_id: int = Field(..., description="Followed ID")
+
+    @model_validator(mode="before")
+    def validate(cls, values):
+        if values.get("follower_id") == values.get("followed_id"):
+            raise ValueError("Follower and Followed IDs can't be same")
+        return values
