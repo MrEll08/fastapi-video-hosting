@@ -4,3 +4,5 @@
 __*
 database/database.db
 uploads/*/*
+!uploads/videos/example.mp4
+!uploads/avatars/default.png

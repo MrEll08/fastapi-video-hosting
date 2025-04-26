@@ -67,10 +67,6 @@ def only_authorized(func):
         return await func(*args, **kwargs)
     return wrapper
 
-@router.get("/", response_class=HTMLResponse)
-async def home_index(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
-
 
 @router.get("/welcome", response_class=HTMLResponse)
 @only_authorized
