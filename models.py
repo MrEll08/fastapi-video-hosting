@@ -32,8 +32,8 @@ class User(Base):
 class Subscription(Base):
     __tablename__ = "subscriptions"
 
-    follower_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    followed_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    follower_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
+    followed_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
 
     follower: Mapped["User"] = relationship(
         back_populates="subscriptions",

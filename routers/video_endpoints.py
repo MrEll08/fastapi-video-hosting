@@ -1,21 +1,21 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.orm import joinedload
-from starlette.responses import JSONResponse
+from fastapi.responses import JSONResponse
 
 from routers.authorization import only_authorized, get_cookie_value
-from pydantic_models import VideoCreate
+from pydantic_models import VideoSchema, VideoFeedSchema
 from database import create_session
 from models import Video
-from pathlib import Path
+from pylogger import logger
 
-from werkzeug.utils import secure_filename
+from constants import UPLOAD_VIDEO_PATH, MAX_VIDEO_SIZE
+
 import os
 import aiofiles
-import logging
 import uuid
 
 router = APIRouter(
@@ -23,12 +23,7 @@ router = APIRouter(
     tags=["video"],
 )
 
-UPLOAD_PATH = "uploads/"
-MAX_FILE_SIZE = 20 * 1024 * 1024
 templates = Jinja2Templates(directory="templates/video")
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 @router.get("/upload", response_class=HTMLResponse)
@@ -45,14 +40,15 @@ async def upload_video(
         description: str = Form(...),
         video_file: UploadFile = File(...)
 ):
-    if video_file.size > MAX_FILE_SIZE:
+    if video_file.size > MAX_VIDEO_SIZE:
         return JSONResponse(status_code=400, content={"message": "File is too large"})
 
     extension = os.path.splitext(video_file.filename)[1]  # .mp4, .mov и т.д.
 
     filename = f"{uuid.uuid4().hex}{extension}"
-    savepath = os.path.join(UPLOAD_PATH, filename)
+    savepath = f"{UPLOAD_VIDEO_PATH}/{filename}"
 
+    logger.info(f"savepath: {savepath}")
     async with aiofiles.open(savepath, "wb") as out_file:
         while content := await video_file.read(1024 * 1024):
             await out_file.write(content)
@@ -76,6 +72,25 @@ async def upload_video(
     })
 
 
+@router.get("/get-feed", response_model=list[VideoFeedSchema])
+async def get_feed(request: Request):
+    async with create_session() as session:
+        videos = await session.scalars(
+            select(Video)
+            .options(joinedload(Video.author))
+            .order_by(desc(Video.id))
+            .limit(30)
+        )
+
+        return [VideoFeedSchema.model_validate(video) for video in videos]
+
+
+@router.get("/", response_class=HTMLResponse)
+async def show_feed(request: Request):
+    return templates.TemplateResponse("feed.html", {"request": request})
+
+
+
 @router.get("/{video_id}", response_class=HTMLResponse)
 async def get_video(request: Request, video_id: int):
     async with create_session() as session:
@@ -86,18 +101,12 @@ async def get_video(request: Request, video_id: int):
     if not video:
         raise HTTPException(status_code=404, detail="Video not found")
 
-
+    video_return = VideoSchema.model_validate(video)
     return templates.TemplateResponse(
         "video.html",
         {
             "request": request,
             "user_id": get_cookie_value(request, "user_id"),
-            "title": video.title,
-            "description": video.description,
-            "author_id": video.author_id,
-            "author_name": video.author.nickname,
-            "video_path": f"/uploads/{video.filename}",
-            "likes": video.likes,
-            "dislikes": video.dislikes,
+            **video_return.model_dump(),
         }
     )

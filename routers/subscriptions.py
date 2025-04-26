@@ -7,6 +7,7 @@ from sqlalchemy import select
 from database import create_session
 from pydantic_models import SubscriptionCreate
 from models import Subscription
+from pylogger import logger
 
 router = APIRouter(
     prefix="/subscriptions",

@@ -3,7 +3,7 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from functools import wraps
-import logging
+from pylogger import logger
 import jwt
 import bcrypt
 
@@ -15,9 +15,6 @@ from models import User
 
 SECRET_KEY = "96619882ee1058b33d61ac7ec4b5f295da8814f9ce773a5c6e11b5b7"
 ALGORITHM = "HS256"
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="",

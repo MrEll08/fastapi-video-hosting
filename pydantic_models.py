@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator, computed_field
 from typing import Optional
+from constants import GET_VIDEO_PATH
 
 
 class UserCreate(BaseModel):
@@ -21,9 +22,52 @@ class UserResponse(BaseModel):
     nickname: str
 
 
-class VideoCreate(BaseModel):
+class AuthorSchema(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True
+    )
+
+    id: int = Field(..., description="Author's ID")
+    nickname: str = Field(..., description="Author's nickname")
+
+
+
+class VideoFeedSchema(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True
+    )
+
+    id: int = Field(..., description="Video ID")
+    title: str = Field(..., description="Video title")
+    author_id: int = Field(..., description="Video author's id")
+    filename: str = Field(..., description="Video path")
+
+    author: AuthorSchema
+
+    @computed_field(return_type=str)
+    @property
+    def path(self):
+        return f"{GET_VIDEO_PATH}/{self.filename}"
+
+
+class VideoSchema(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True
+    )
+
+    id: int = Field(..., description="Video ID")
     title: str = Field(..., description="Video title")
     description: str = Field(description="Video description")
+    filename: str = Field(..., description="Video path on server")
+    likes: int = Field(default=0, description="Video likes")
+    dislikes: int = Field(default=0, description="Video likes")
+
+    author: AuthorSchema
+
+    @computed_field(return_type=str)
+    @property
+    def path(self):
+        return f"{GET_VIDEO_PATH}/{self.filename}"
 
 
 class SubscriptionCreate(BaseModel):

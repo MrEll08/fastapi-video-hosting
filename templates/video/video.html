@@ -156,42 +156,53 @@
 </header>
 
 <main>
-    <div class="video-container">
-        <h2>Видео: {{ title }}</h2>
-        <video controls id="video-player">
-            <source src="{{ video_path }}" type="video/mp4">
-            Ваш браузер не поддерживает видео.
-        </video>
+    <div class="layout">
+        <div class="main-container">
+            <div class="video-container">
+                <h2>Видео: {{ title }}</h2>
+                <video controls id="video-player">
+                    <source src="{{ path }}" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
 
-        <div class="author-info">
-            <p><strong>Автор:</strong> {{ author_name }}</p>
-            <p><strong>Описание:</strong> {{ description }}</p>
-            <button id="subscribe-btn" data-author="{{ author_name }}" class="subscribe-btn">Подписаться</button>
-        </div>
+                <div class="author-info">
+                    <p><strong>Автор:</strong> {{ author.nickname }}</p>
+                    <p><strong>Описание:</strong> {{ description }}</p>
+                    <button id="subscribe-btn" data-author="{{ author.nickname }}" class="subscribe-btn">Подписаться
+                    </button>
+                </div>
 
-        <div class="like-dislike-container">
-            <div class="like-dislike-button" id="like-btn">
-                ❤️ Лайк
+                <div class="like-dislike-container">
+                    <div class="like-dislike-button" id="like-btn">
+                        ❤️ Лайк
+                    </div>
+                    <div class="like-dislike-button" id="dislike-btn">
+                        👎 Дизлайк
+                    </div>
+                </div>
+                <div class="like-dislike-count">
+                    Лайков: <span id="like-count">{{ likes }}</span> / Дизлайков: <span
+                        id="dislike-count">{{ dislikes }}</span>
+                </div>
             </div>
-            <div class="like-dislike-button" id="dislike-btn">
-                👎 Дизлайк
+
+            <div class="comments-section">
+                <h3>Комментарии</h3>
+                <form id="comment-form">
+                    <textarea id="comment" placeholder="Оставьте комментарий" required></textarea>
+                    <button type="submit">Отправить</button>
+                </form>
+
+                <div id="comments-list">
+                    <!-- Комментарии будут отображаться здесь -->
+                </div>
             </div>
         </div>
-        <div class="like-dislike-count">
-            Лайков: <span id="like-count">{{ likes }}</span> / Дизлайков: <span id="dislike-count">{{ dislikes }}</span>
-        </div>
-    </div>
 
-    <div class="comments-section">
-        <h3>Комментарии</h3>
-        <form id="comment-form">
-            <textarea id="comment" placeholder="Оставьте комментарий" required></textarea>
-            <button type="submit">Отправить</button>
-        </form>
-
-        <div id="comments-list">
-            <!-- Комментарии будут отображаться здесь -->
-        </div>
+        <aside class="feed-container">
+            <h2>Последние видео</h2>
+            <div id="feed"></div>
+        </aside>
     </div>
 </main>
 
@@ -202,7 +213,7 @@
 <script>
     const subscribeBtn = document.getElementById("subscribe-btn");
     let user_id = "{{ user_id }}";
-    let author_id = "{{ author_id }}";
+    let author_id = "{{ author.id }}";
     let subscribed = false;
 
     async function check_subscription_status() {
@@ -284,6 +295,7 @@
         }
     });
 </script>
-
+<script src="/static/js/feed_script.js"></script>
+<link rel="stylesheet" href="/static/css/feed.css">
 </body>
 </html>

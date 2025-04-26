@@ -1,0 +1,94 @@
+#feed {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.title {
+    text-align: center;
+    font-size: 20px;
+}
+
+.video-block {
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.video-preview {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    background-color: #000; /* на случай, если видео ещё не успело загрузиться */
+    object-fit: cover; /* кадр заполнит весь контейнер */
+    cursor: pointer;
+    display: block;
+}
+
+.author-avatar {
+    width: 40px; /* Размер аватарки */
+    height: 40px; /* Размер аватарки */
+    border-radius: 50%; /* Округлая аватарка */
+    object-fit: cover; /* Пропорционально обрезать изображение */
+}
+
+.video-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.video-info {
+    display: flex; /* Ставим блок с автором и названием в одну строку */
+    gap: 10px; /* Отступ между аватаром и текстом */
+    align-items: center; /* Вертикальное выравнивание */
+    cursor: pointer;
+}
+
+.video-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.author-link {
+    font-size: 14px;
+    color: #555;
+    text-decoration: underline;
+}
+
+.author-link:hover {
+    color: #000;
+}
+
+/* это для ленты сбоку */
+
+.layout {
+  display: flex;
+  gap: 20px;            /* отступ между колонками */
+  align-items: flex-start;
+  padding: 0 40px;      /* можно подправить по желанию */
+}
+
+/* Левая колонка растягивается */
+.main-content {
+  flex: 1;
+}
+
+/* Правая колонка — фиксированной ширины */
+.feed-container {
+  width: 300px;         /* подберите идеальную ширину для ленты */
+}
+
+/* Можно чуть украсить заголовок ленты */
+.feed-container h2 {
+  margin-top: 0;
+  font-size: 1.4em;
+  text-align: center;
+}
+
