@@ -48,7 +48,6 @@ async def upload_video(
     filename = f"{uuid.uuid4().hex}{extension}"
     savepath = f"{UPLOAD_VIDEO_PATH}/{filename}"
 
-    logger.info(f"savepath: {savepath}")
     async with aiofiles.open(savepath, "wb") as out_file:
         while content := await video_file.read(1024 * 1024):
             await out_file.write(content)
@@ -101,7 +100,6 @@ async def get_video(request: Request, video_id: int):
         raise HTTPException(status_code=404, detail="Video not found")
 
     video_return = VideoSchema.model_validate(video)
-    logger.info(f"video_return: {video_return.model_dump_json()}")
     return templates.TemplateResponse(
         "video.html",
         {

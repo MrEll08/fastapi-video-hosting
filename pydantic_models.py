@@ -87,3 +87,27 @@ class ChangeLike(BaseModel):
     )
 
     value: int = Field(..., description="New value")
+
+
+class CommentCreate(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True
+    )
+
+    content: str = Field(..., description="Comment content")
+
+
+class CommentResponse(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True
+    )
+
+    id: int = Field(..., description="Comment ID")
+    user_id: int = Field(..., description="User ID")
+    video_id: int = Field(..., description="Video ID")
+    content: str = Field(..., description="Comment content")
+
+    likes: int = Field(default=0, description="Comment likes")
+    dislikes: int = Field(default=0, description="Comment dislikes")
+
+    user: AuthorSchema

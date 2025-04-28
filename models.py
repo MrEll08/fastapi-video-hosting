@@ -11,12 +11,14 @@ class User(Base):
     nickname: Mapped[str] = mapped_column(unique=True, nullable=False)
     password_hash: Mapped[bytes] = mapped_column(LargeBinary(60), nullable=False)
 
-    posts: Mapped[list["Post"]] = relationship(back_populates="author")
-    post_comments: Mapped[list["PostComment"]] = relationship(back_populates="user")
+    # posts: Mapped[list["Post"]] = relationship(back_populates="author")
+    # post_comments: Mapped[list["PostComment"]] = relationship(back_populates="user")
 
     videos: Mapped[list["Video"]] = relationship(back_populates="author")
-    video_comments: Mapped[list["VideoComment"]] = relationship(back_populates="user")
-
+    video_comments: Mapped[list["VideoComment"]] = relationship(
+        back_populates="user",
+        foreign_keys="VideoComment.user_id",
+    )
     followers: Mapped[list["Subscription"]] = relationship(
         back_populates="followed",
         foreign_keys="Subscription.followed_id",
@@ -50,19 +52,19 @@ class Subscription(Base):
     )
 
 
-class Post(Base):
-    __tablename__ = "posts"
-
-    title: Mapped[str] = mapped_column(nullable=False)
-    content: Mapped[str] = mapped_column(nullable=False)
-    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-
-    author: Mapped["User"] = relationship(back_populates="posts")
-
-    comments: Mapped[list["PostComment"]] = relationship(
-        back_populates="post",
-        cascade="all, delete-orphan"
-    )
+# class Post(Base):
+#     __tablename__ = "posts"
+#
+#     title: Mapped[str] = mapped_column(nullable=False)
+#     content: Mapped[str] = mapped_column(nullable=False)
+#     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+#
+#     author: Mapped["User"] = relationship(back_populates="posts")
+#
+#     comments: Mapped[list["PostComment"]] = relationship(
+#         back_populates="post",
+#         cascade="all, delete-orphan"
+#     )
 
 
 class Video(Base):
@@ -79,6 +81,9 @@ class Video(Base):
     author: Mapped["User"] = relationship(back_populates="videos")
     comments: Mapped[list["VideoComment"]] = relationship(
         back_populates="video",
+        foreign_keys="VideoComment.video_id",
+        order_by="desc(VideoComment.id)",
+        lazy="selectin",
         cascade="all, delete-orphan"
     )
     video_likes: Mapped[list["VideoLike"]] = relationship(
@@ -104,28 +109,34 @@ class VideoLike(Base):
         foreign_keys=video_id,
     )
 
-class Comment(Base):
-    __abstract__ = True
+# class Comment(Base):
+#     __abstract__ = True
+#
+#     body: Mapped[str] = mapped_column(nullable=False)
+#     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+#
+#     likes: Mapped[int] = mapped_column(default=0, nullable=False)
+#     dislikes: Mapped[int] = mapped_column(default=0, nullable=False)
+#
+#
+# class PostComment(Comment):
+#     __tablename__ = "post_comments"
+#
+#     user: Mapped["User"] = relationship(back_populates="post_comments")
+#     post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), nullable=False)
+#     post: Mapped["Post"] = relationship(back_populates="comments")
 
-    body: Mapped[str] = mapped_column(nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+class VideoComment(Base):
+    __tablename__ = "video_comments"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
+    video_id: Mapped[int] = mapped_column(ForeignKey("videos.id"), index=True, nullable=False)
+    content: Mapped[str] = mapped_column(nullable=False)
 
     likes: Mapped[int] = mapped_column(default=0, nullable=False)
     dislikes: Mapped[int] = mapped_column(default=0, nullable=False)
 
-
-class PostComment(Comment):
-    __tablename__ = "post_comments"
-
-    user: Mapped["User"] = relationship(back_populates="post_comments")
-    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), nullable=False)
-    post: Mapped["Post"] = relationship(back_populates="comments")
-
-
-class VideoComment(Comment):
-    __tablename__ = "video_comments"
-
     user: Mapped["User"] = relationship(back_populates="video_comments")
-    video_id: Mapped[int] = mapped_column(ForeignKey("videos.id"), nullable=False)
     video: Mapped["Video"] = relationship(back_populates="comments")
 

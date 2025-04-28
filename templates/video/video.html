@@ -85,37 +85,6 @@
             background-color: #444851;
         }
 
-        .comments-section {
-            margin-top: 40px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .comments-section input[type="text"],
-        .comments-section textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 1em;
-        }
-
-        .comments-section button {
-            background-color: #20232a;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .comments-section button:hover {
-            background-color: #444851;
-        }
-
         .like-dislike-container {
             display: flex;
             justify-content: center;
@@ -186,16 +155,8 @@
                 </div>
             </div>
 
-            <div class="comments-section">
+            <div id="comments-section" class="comments-section">
                 <h3>Комментарии</h3>
-                <form id="comment-form">
-                    <textarea id="comment" placeholder="Оставьте комментарий" required></textarea>
-                    <button type="submit">Отправить</button>
-                </form>
-
-                <div id="comments-list">
-                    <!-- Комментарии будут отображаться здесь -->
-                </div>
             </div>
         </div>
 
@@ -219,9 +180,10 @@
 
 <script src="/static/js/subscribe_button.js"></script>
 <script src="/static/js/like_dislike.js"></script>
-<script src="/static/js/create_comment.js"></script>
 <script src="/static/js/feed_script.js"></script>
+<script src="/static/js/comments.js"></script>
 
 <link rel="stylesheet" href="/static/css/feed.css">
+<link rel="stylesheet" href="/static/css/comments.css">
 </body>
 </html>
