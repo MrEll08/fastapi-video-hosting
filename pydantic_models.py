@@ -79,3 +79,11 @@ class SubscriptionCreate(BaseModel):
         if values.get("follower_id") == values.get("followed_id"):
             raise ValueError("Follower and Followed IDs can't be same")
         return values
+
+
+class ChangeLike(BaseModel):
+    model_config = ConfigDict(
+        from_attributes = True
+    )
+
+    value: int = Field(..., description="New value")

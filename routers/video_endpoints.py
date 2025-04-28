@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -7,9 +7,9 @@ from sqlalchemy.orm import joinedload
 from fastapi.responses import JSONResponse
 
 from routers.authorization import only_authorized, get_cookie_value
-from pydantic_models import VideoSchema, VideoFeedSchema
+from pydantic_models import VideoSchema, VideoFeedSchema, ChangeLike
 from database import create_session
-from models import Video
+from models import Video, VideoLike
 from pylogger import logger
 
 from constants import UPLOAD_VIDEO_PATH, MAX_VIDEO_SIZE
@@ -90,7 +90,6 @@ async def show_feed(request: Request):
     return templates.TemplateResponse("feed.html", {"request": request})
 
 
-
 @router.get("/{video_id}", response_class=HTMLResponse)
 async def get_video(request: Request, video_id: int):
     async with create_session() as session:
@@ -102,11 +101,53 @@ async def get_video(request: Request, video_id: int):
         raise HTTPException(status_code=404, detail="Video not found")
 
     video_return = VideoSchema.model_validate(video)
+    logger.info(f"video_return: {video_return.model_dump_json()}")
     return templates.TemplateResponse(
         "video.html",
         {
             "request": request,
             "user_id": get_cookie_value(request, "user_id"),
-            **video_return.model_dump(),
+            "video_data": video_return.model_dump()
         }
     )
+
+
+@router.post("/{video_id}")
+@only_authorized
+async def change_like(request: Request, video_id: int, new_like: ChangeLike = Depends()):
+    async with create_session() as session:
+        def remove_like(val):
+            if val == -1:
+                video.dislikes -= 1
+            elif val == 1:
+                video.likes -= 1
+
+        def add_like(val):
+            if val == -1:
+                video.dislikes += 1
+            elif val == 1:
+                video.likes += 1
+
+        video = await session.scalar(
+            select(Video).options(joinedload(Video.video_likes)).filter(Video.id == video_id)
+        )
+
+        if not video:
+            raise HTTPException(status_code=404, detail="Video not found")
+
+        user_id = get_cookie_value(request, "user_id")
+        like = next((vl for vl in video.video_likes if vl.user_id == user_id), None)
+        if like:
+            remove_like(like.value)
+            if like.value != new_like.value:
+                add_like(new_like.value)
+                like.value = new_like.value
+            else:
+                like.value = 0
+        else:
+            add_like(new_like.value)
+            session.add(VideoLike(user_id=user_id, video_id=video_id, value=new_like.value))
+        await session.commit()
+        await session.refresh(video)
+        logger.info({"likes": video.likes, "dislikes": video.dislikes})
+        return JSONResponse(status_code=200, content={"likes": video.likes, "dislikes": video.dislikes})

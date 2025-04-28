@@ -10,16 +10,19 @@
             margin: 0;
             padding: 0;
         }
+
         header {
             background-color: #20232a;
             color: white;
             padding: 20px;
             text-align: center;
         }
+
         main {
             padding: 40px;
             text-align: center;
         }
+
         .upload-box {
             background-color: white;
             padding: 30px;
@@ -27,8 +30,9 @@
             width: 80%;
             max-width: 600px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         input[type="text"], textarea, input[type="file"] {
             display: block;
             margin: 15px auto;
@@ -37,10 +41,12 @@
             max-width: 400px;
             font-size: 1em;
         }
+
         textarea {
             resize: vertical;
             height: 100px;
         }
+
         button {
             padding: 12px 24px;
             font-size: 1em;
@@ -50,9 +56,11 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #444851;
         }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -69,15 +77,22 @@
 </header>
 
 <main>
-    <div class="upload-box">
-        <h2>Загрузить новое видео</h2>
-        <form id="upload-form" enctype="multipart/form-data">
-            <input type="text" name="title" placeholder="Название видео" required>
-            <textarea name="description" placeholder="Описание видео" required></textarea>
-            <input type="file" name="video_file" accept="video/mp4" required>
-            <button type="submit">Загрузить</button>
-        </form>
-        <p id="status" style="margin-top: 20px;"></p>
+    <div class="layout">
+        <div class="upload-box">
+            <h2>Загрузить новое видео</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <input type="text" name="title" placeholder="Название видео" required>
+                <textarea name="description" placeholder="Описание видео" required></textarea>
+                <input type="file" name="video_file" accept="video/mp4" required>
+                <button type="submit">Загрузить</button>
+            </form>
+            <p id="status" style="margin-top: 20px;"></p>
+        </div>
+
+        <aside class="feed-contained">
+            <h2>Последние видео</h2>
+            <div id="feed"></div>
+        </aside>
     </div>
 </main>
 
@@ -85,34 +100,9 @@
     &copy; 2025 Fastube – Сделано с ❤️ на FastAPI
 </footer>
 
-<script>
-    document.getElementById('upload-form').addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const formData = new FormData(this);
-        const status = document.getElementById('status');
-        status.textContent = 'Загрузка...';
-
-        try {
-            const response = await fetch('/video/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                const data = await response.json()
-                alert(data.message)
-                status.textContent = '✅ Видео успешно загружено!';
-                window.location.href = `/video/${data.video_id}`
-            } else {
-                status.textContent = response.message || '❌ Ошибка при загрузке';
-            }
-        } catch (err) {
-            console.error(err);
-            status.textContent = '⚠️ Произошла ошибка';
-        }
-    });
-</script>
+<script src="/static/js/upload_video.js"></script>
+<script src="/static/js/feed_script.js"></script>
+<link rel="stylesheet" href="/static/css/feed.css">
 
 </body>
 </html>

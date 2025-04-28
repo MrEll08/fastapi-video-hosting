@@ -27,6 +27,11 @@ class User(Base):
         foreign_keys="Subscription.follower_id",
         cascade="all, delete-orphan",
     )
+    video_likes: Mapped[list["VideoLike"]] = relationship(
+        back_populates="user",
+        foreign_keys="VideoLike.user_id",
+        cascade="all, delete-orphan",
+    )
 
 
 class Subscription(Base):
@@ -76,7 +81,28 @@ class Video(Base):
         back_populates="video",
         cascade="all, delete-orphan"
     )
+    video_likes: Mapped[list["VideoLike"]] = relationship(
+        back_populates="video",
+        foreign_keys="VideoLike.video_id",
+        cascade="all, delete-orphan"
+    )
 
+
+class VideoLike(Base):
+    __tablename__ = "video_likes"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
+    video_id: Mapped[int] = mapped_column(ForeignKey("videos.id"), index=True, nullable=False)
+    value: Mapped[int] = mapped_column(default=0, nullable=False)
+
+    user: Mapped["User"] = relationship(
+        back_populates="video_likes",
+        foreign_keys=user_id,
+    )
+    video: Mapped["Video"] = relationship(
+        back_populates="video_likes",
+        foreign_keys=video_id,
+    )
 
 class Comment(Base):
     __abstract__ = True
@@ -102,3 +128,4 @@ class VideoComment(Comment):
     user: Mapped["User"] = relationship(back_populates="video_comments")
     video_id: Mapped[int] = mapped_column(ForeignKey("videos.id"), nullable=False)
     video: Mapped["Video"] = relationship(back_populates="comments")
+
