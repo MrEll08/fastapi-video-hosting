@@ -34,16 +34,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             const videoInfo = document.createElement("div");
             videoInfo.classList.add("video-info");
 
+            const avatar = document.createElement("a");
+            avatar.href = `/profile/${video.author.nickname}`
+
             const avatarImg = document.createElement("img");
-            avatarImg.src = `/uploads/avatars/${video.author.avatar_filename || 'default.png'}`; // Путь до аватарки
+            avatarImg.src = `/uploads/avatars/${video.author.avatar_filename || 'default.png'}`;
             avatarImg.alt = video.author.nickname;
             avatarImg.classList.add("author-avatar");
+
+            avatar.appendChild(avatarImg);
 
             const videoText = document.createElement("div");
             videoText.classList.add("video-text");
 
-            const titleEl = document.createElement("div");
+            const titleEl = document.createElement("a");
             titleEl.textContent = video.title;
+            titleEl.href = `/video/${video.id}`;
             titleEl.classList.add("video-title");
 
             const authorLink = document.createElement("a");
@@ -54,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             videoText.appendChild(titleEl);
             videoText.appendChild(authorLink);
 
-            videoInfo.appendChild(avatarImg);
+            videoInfo.appendChild(avatar);
             videoInfo.appendChild(videoText);
 
             videoBlock.appendChild(videoInfo);

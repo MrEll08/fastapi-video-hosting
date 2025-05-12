@@ -53,13 +53,17 @@
 .video-title {
     font-size: 18px;
     font-weight: bold;
+    text-align: left;
+    text-decoration: none;
     color: #333;
 }
 
 .author-link {
     font-size: 14px;
+    text-align: left;
     color: #555;
-    text-decoration: underline;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .author-link:hover {
@@ -69,26 +73,26 @@
 /* это для ленты сбоку */
 
 .layout {
-  display: flex;
-  gap: 20px;            /* отступ между колонками */
-  align-items: flex-start;
-  padding: 0 40px;      /* можно подправить по желанию */
+    display: flex;
+    gap: 20px; /* отступ между колонками */
+    align-items: flex-start;
+    padding: 0 40px; /* можно подправить по желанию */
 }
 
 /* Левая колонка растягивается */
 .main-content {
-  flex: 1;
+    flex: 1;
 }
 
 /* Правая колонка — фиксированной ширины */
 .feed-container {
-  width: 300px;         /* подберите идеальную ширину для ленты */
+    width: 300px; /* подберите идеальную ширину для ленты */
 }
 
 /* Можно чуть украсить заголовок ленты */
 .feed-container h2 {
-  margin-top: 0;
-  font-size: 1.4em;
-  text-align: center;
+    margin-top: 0;
+    font-size: 1.4em;
+    text-align: center;
 }
 

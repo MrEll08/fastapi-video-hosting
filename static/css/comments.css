@@ -39,14 +39,30 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
+.comment-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
 .comment-author {
     font-weight: bold;
     color: #20232a;
-    margin-bottom: 8px;
+    margin-bottom: 20px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.comment-author-avatar {
+    width: 20px; /* Размер аватарки */
+    height: 20px; /* Размер аватарки */
+    border-radius: 50%; /* Округлая аватарка */
+    object-fit: cover; /* Пропорционально обрезать изображение */
 }
 
 .comment-content {
     margin-bottom: 10px;
+    margin-top: 10px;
     font-size: 1em;
     color: #333;
 }

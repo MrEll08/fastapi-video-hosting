@@ -23,9 +23,25 @@ function createCommentElement(comment) {
     const commentElement = document.createElement('div');
     commentElement.classList.add('comment');
 
-    const author = document.createElement('div');
-    author.classList.add('comment-author');
+    const layout = document.createElement('div');
+    layout.classList.add('comment-layout');
+
+    const author_avatar = document.createElement('a');
+    author_avatar.href = `/profile/${comment.user.nickname}`;
+
+    const author_avatar_pic = document.createElement('img');
+    author_avatar_pic.src = `/uploads/avatars/${comment.user.avatar_filename || 'default.png'}`;
+    author_avatar_pic.alt = comment.user.nickname;
+    author_avatar_pic.classList.add('comment-author-avatar');
+
+    author_avatar.appendChild(author_avatar_pic);
+
+    const comment_body = document.createElement('div');
+
+    const author = document.createElement('a');
+    author.href = `/profile/${comment.user.nickname}`;
     author.textContent = `${comment.user.nickname}`;
+    author.classList.add('comment-author');
 
     const content = document.createElement('div');
     content.classList.add('comment-content');
@@ -35,9 +51,14 @@ function createCommentElement(comment) {
     meta.classList.add('comment-meta');
     meta.textContent = `Лайков: ${comment.likes} / Дизлайков: ${comment.dislikes}`;
 
-    commentElement.appendChild(author);
-    commentElement.appendChild(content);
-    commentElement.appendChild(meta);
+    comment_body.appendChild(author);
+    comment_body.appendChild(content);
+    comment_body.appendChild(meta);
+
+    layout.appendChild(author_avatar);
+    layout.appendChild(comment_body);
+
+    commentElement.appendChild(layout);
 
     return commentElement;
 }
